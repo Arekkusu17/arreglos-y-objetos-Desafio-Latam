@@ -45,24 +45,30 @@ const propiedadesJSON = [
 
 const divPropiedades = document.getElementById("divPropiedades");
 
-//iterate to every real state in the propiedadesJSON array, so they can be displayed on the html
+//create function that will help the code to be more reusable when is needed to write a new Propiedad
 
-for (let propiedad of propiedadesJSON) {
-  divPropiedades.innerHTML += `
+const writePropiedad = (obj) => {
+  let newPropiedad = `
   <div class="propiedad">
-    <div class="img" style="background-image:url('${propiedad.src}')">
+    <div class="img" style="background-image:url('${obj[Object.keys(obj)[2]]}')">
     </div>
     <section>
-      <h5>${propiedad.name}</h5>
+      <h5>${obj[Object.keys(obj)[0]]}</h5>
       <div class="d-flex justify-content-between">
-        <p>Cuartos: ${propiedad.rooms}</p>
-        <p>Metros: ${propiedad.m}</p>
+        <p>Cuartos: ${obj[Object.keys(obj)[3]]}</p>
+        <p>Metros: ${obj[Object.keys(obj)[4]]}</p>
       </div>
-      <p class="my-3">${propiedad.description}</p>
-      <button class="btn btn-info">Ver más</button>
+    <p class="my-3">${obj[Object.keys(obj)[1]]}</p>
+    <button class="btn btn-info">Ver más</button>
     </section>
-  </div>  
+  </div>
   `;
+  return newPropiedad;
+};
+
+//iterate to every real state in the propiedadesJSON array, so they can be displayed on the html
+for (let propiedad of propiedadesJSON) {
+  divPropiedades.innerHTML += writePropiedad(propiedad);
 }
 
 //elements required for searching
@@ -82,38 +88,24 @@ btnSearch.addEventListener("click", (e) => {
     roomQty.value = "";
     minSquaredMeters.value = "";
     maxSquaredMeters.value = "";
+  } else {
+    //filter all the properties to meet the requeriments of the inputs values
+    const filteredPropiedades = propiedadesJSON.filter(
+      (propiedad) =>
+        propiedad.rooms == roomQty.value &&
+        propiedad.m >= minSquaredMeters.value &&
+        propiedad.m <= maxSquaredMeters.value
+    );
+
+    let newDivPropiedades = "";
+
+    for (let propiedad of filteredPropiedades) {
+      newDivPropiedades += writePropiedad(propiedad);
+    }
+    //update the total
+    totalSearch.textContent = filteredPropiedades.length;
+
+    //write all the new propiedades in the div
+    divPropiedades.innerHTML = newDivPropiedades;
   }
-
-  //filter all the properties to meet the requeriments of the inputs values
-  const filteredPropiedades = propiedadesJSON.filter(
-    (propiedad) =>
-      propiedad.rooms == roomQty.value &&
-      propiedad.m >= minSquaredMeters.value &&
-      propiedad.m <= maxSquaredMeters.value
-  );
-
-  let newDivPropiedades = "";
-
-  for (let propiedad of filteredPropiedades) {
-    newDivPropiedades += `
-      <div class="propiedad">
-        <div class="img" style="background-image:url('${propiedad.src}')">
-        </div>
-        <section>
-          <h5>${propiedad.name}</h5>
-          <div class="d-flex justify-content-between">
-            <p>Cuartos: ${propiedad.rooms}</p>
-            <p>Metros: ${propiedad.m}</p>
-          </div>
-          <p class="my-3">${propiedad.description}</p>
-          <button class="btn btn-info">Ver más</button>
-        </section>
-      </div>
-    `;
-  }
-  //update the total
-  totalSearch.textContent = filteredPropiedades.length;
-
-  //write all the new propiedades in the div
-  divPropiedades.innerHTML = newDivPropiedades;
 });
